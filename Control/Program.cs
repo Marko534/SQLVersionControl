@@ -1,7 +1,9 @@
 ﻿using DbUp;
+using DbUp.Engine;
 using System.Reflection;
+using System;
 
-internal class Program
+class Program
 {
     static int Main(string[] args)
     {
@@ -13,13 +15,14 @@ internal class Program
         var upgrader =
             DeployChanges.To
                 .SqlDatabase(connectionString)
-                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly())
+                .WithScriptsEmbeddedInAssembly(
+                      Assembly.GetExecutingAssembly())
                 .LogToConsole()
                 .Build();
 
         var result = upgrader.PerformUpgrade();
 
-        Console.WriteLine(result);
+        Console.WriteLine(args[0]);
 
         if (!result.Successful)
         {
