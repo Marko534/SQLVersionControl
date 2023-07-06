@@ -1,17 +1,14 @@
 ﻿using DbUp;
 using DbUp.Engine;
 using System.Reflection;
-using System;
 
-class Program
+internal class Program
 {
     static int Main(string[] args)
     {
         //databese location
-        var connectionString =
-            args.FirstOrDefault()
-            ?? "Data Source=MARKOPC\\SQLEXPRESS;Initial Catalog=VC;Integrated Security=True;Encrypt=False";
-
+        var connectionString ="Data Source=MARKOPC\\SQLEXPRESS;Initial Catalog=VC;Integrated Security=True;Encrypt=False";
+        args[0] = "Data Source=MARKOPC\\SQLEXPRESS;Initial Catalog=VC;Integrated Security=True;Encrypt=False";
         var upgrader =
             DeployChanges.To
                 .SqlDatabase(connectionString)
@@ -22,7 +19,7 @@ class Program
 
         var result = upgrader.PerformUpgrade();
 
-        Console.WriteLine(args[0]);
+        Console.WriteLine(args.Length);
 
         if (!result.Successful)
         {
