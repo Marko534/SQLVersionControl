@@ -1,0 +1,1 @@
+./Control.exe "Data Source=MARKOPC\\SQLEXPRESS;Initial Catalog=VC;Integrated Security=True;Encrypt=False" "C:\\Users\\38975\\Desktop\\Control\\Control\\Script\\"

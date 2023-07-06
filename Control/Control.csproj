@@ -8,17 +8,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Script\MakeCitysql.sql" />
-    <None Remove="Script\MakeMat.sql" />
     <None Remove="Script\MakeTest.sql" />
-    <None Remove="Script\MakeTransportMeathod.sql" />
+    <None Remove="Script\Migrations\MakeCitysql.sql" />
+    <None Remove="Script\Migrations\MakeMat.sql" />
+    <None Remove="Script\Migrations\MakeTest.sql" />
+    <None Remove="Script\Migrations\MakeTransportMeathod.sql" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Script\MakeCitysql.sql" />
-    <EmbeddedResource Include="Script\MakeMat.sql" />
-    <EmbeddedResource Include="Script\MakeTest.sql" />
-    <EmbeddedResource Include="Script\MakeTransportMeathod.sql" />
+    <EmbeddedResource Include="Script\Migrations\MakeCitysql.sql" />
+    <EmbeddedResource Include="Script\Migrations\MakeMat.sql" />
+    <EmbeddedResource Include="Script\Migrations\MakeTest.sql" />
+    <EmbeddedResource Include="Script\Migrations\MakeTransportMeathod.sql" />
   </ItemGroup>
 
   <ItemGroup>
