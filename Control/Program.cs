@@ -5,6 +5,7 @@ internal class Program
 {
     static int Main(string[] args)
     {
+        //databese location
         var connectionString =
             args.FirstOrDefault()
             ?? "Data Source=MARKOPC\\SQLEXPRESS;Initial Catalog=VC;Integrated Security=True;Encrypt=False";
