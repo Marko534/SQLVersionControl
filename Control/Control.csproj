@@ -10,12 +10,14 @@
   <ItemGroup>
     <None Remove="Script\MakeCitysql.sql" />
     <None Remove="Script\MakeMat.sql" />
+    <None Remove="Script\MakeTest.sql" />
     <None Remove="Script\MakeTransportMeathod.sql" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Script\MakeCitysql.sql" />
     <EmbeddedResource Include="Script\MakeMat.sql" />
+    <EmbeddedResource Include="Script\MakeTest.sql" />
     <EmbeddedResource Include="Script\MakeTransportMeathod.sql" />
   </ItemGroup>
 

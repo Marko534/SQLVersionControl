@@ -1,3 +1,5 @@
+DROP TABLE VC.dbo.TransportMeathod;
+
 CREATE TABLE VC.dbo.TransportMeathod(
 	TransportMeathodId int IDENTITY(1,1) PRIMARY KEY,
 	TransportMeathod varchar(255),

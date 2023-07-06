@@ -1,4 +1,4 @@
- DROP TABLE VC.dbo.Material;
+DROP TABLE VC.dbo.Material;
 
 CREATE TABLE VC.dbo.Material (
 	MaterialId int IDENTITY(1,1) PRIMARY KEY,

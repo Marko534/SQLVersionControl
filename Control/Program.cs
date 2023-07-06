@@ -19,6 +19,8 @@ internal class Program
 
         var result = upgrader.PerformUpgrade();
 
+        Console.WriteLine(result);
+
         if (!result.Successful)
         {
             Console.ForegroundColor = ConsoleColor.Red;
