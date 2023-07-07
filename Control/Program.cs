@@ -19,7 +19,7 @@ class HistoricalTrackingJournal : IJournal
     void IJournal.EnsureTableExistsAndIsLatestVersion(Func<IDbCommand> dbCommandFactory)
     {
         var schemaInformationQuery = @"
-			USE [VC];
+			USE [VC2];
 			SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'SchemaVersions' AND TABLE_SCHEMA = 'dbo'";
         using var command = dbCommandFactory();
         command.CommandText = schemaInformationQuery;
@@ -29,7 +29,7 @@ class HistoricalTrackingJournal : IJournal
         if (reader == null)
         {
             string tableCreationSQL = @"
-						USE  [VC];
+						USE  [VC2];
 						CREATE TABLE SchemaVersions (
 						[Id] INT IDENTITY(1,1) NOT NULL
 						, [ScriptName] NVARCHAR(255) NOT NULL
@@ -43,10 +43,10 @@ class HistoricalTrackingJournal : IJournal
 						, CONSTRAINT pk_HistoricalDates_Id PRIMARY KEY NONCLUSTERED (Id)
 					)
 
-					ALTER TABLE [VC].[dbo].HistoricalDates
+					ALTER TABLE [VC2].[dbo].HistoricalDates
 					ADD CONSTRAINT FK_SchemaVersions_SchmaVersionsId
 					FOREIGN KEY (SchemaVersionsId)
-					REFERENCES [VC].[dbo].SchemaVersions (Id)
+					REFERENCES [VC2].[dbo].SchemaVersions (Id)
 					ON DELETE CASCADE
 					ON UPDATE CASCADE;
 					";
@@ -59,7 +59,7 @@ class HistoricalTrackingJournal : IJournal
     string[] IJournal.GetExecutedScripts()
     {
         var schemaInformationQuery = @"
-			USE [VC];
+			USE [VC2];
 			SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'SchemaVersions' AND TABLE_SCHEMA = 'dbo'";
         using SqlConnection checkingConnection = new SqlConnection(_connectionString);
         checkingConnection.Open();
@@ -73,7 +73,7 @@ class HistoricalTrackingJournal : IJournal
             return Array.Empty<string>();
         }
 
-        string queryString = @"USE  [VC];
+        string queryString = @"USE  [VC2];
 			SELECT ScriptName FROM [SchemaVersions]";
 
         var result = new List<string>();
@@ -94,7 +94,7 @@ class HistoricalTrackingJournal : IJournal
     void IJournal.StoreExecutedScript(SqlScript script, Func<IDbCommand> dbCommandFactory)
     {
         string insertionSQL = @$"
-						USE  [VC];
+						USE  [VC2];
 						IF EXISTS(SELECT 1 FROM [SchemaVersions] WHERE ScriptName = @scriptName)
 						BEGIN
 							UPDATE [SchemaVersions]
@@ -145,8 +145,8 @@ internal class Program
         }
         else
         {
-             connectionString = "Data Source=MARKOPC\\SQLEXPRESS;Initial Catalog=VC;Integrated Security=True;Encrypt=False";
-             scriptsPath = "C:\\Users\\38975\\Desktop\\Control\\Control\\Script\\";
+             connectionString = "Data Source=MARKOPC\\MSSQLSERVER2;Initial Catalog=VC2;Integrated Security=True;Encrypt=False";
+             scriptsPath = "C:\\Users\\38975\\Desktop\\Script\\";
         }
         Console.WriteLine("Start executing predeployment scripts...");
         string preDeploymentScriptsPath = Path.Combine(scriptsPath, "PreDeployment");
