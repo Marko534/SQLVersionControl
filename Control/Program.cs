@@ -6,6 +6,8 @@ using DbUp.Engine;
 using System.Data;
 using System.Data.SqlClient;
 using Microsoft.Data.SqlClient;
+using System.IO;
+using System;
 
 class HistoricalTrackingJournal : IJournal
 {
@@ -135,34 +137,33 @@ class HistoricalTrackingJournal : IJournal
 internal class Program
 {
     //Path should be a directory
-    static List<string> SortedDateModifiedScripts (string scriptsPath)
+    static List<SqlScript> SortedDateModifiedScripts (string scriptsPath)
     {
-        List<string> sorted = new List<string>();
+        List<SqlScript> sorted = new List<SqlScript>();
         DirectoryInfo directory = new DirectoryInfo(scriptsPath);
         FileInfo[] files = directory.GetFiles();
         var sortedFiles = files.OrderBy(f => f.LastWriteTime);
 
         foreach (FileInfo file in sortedFiles)
         {
-            sorted.Add(file.FullName);
+            sorted.Add(SqlScript.FromFile(file.FullName));
         }
         return sorted;
-
     }
     static int Main(string[] args)
     {
-        var connectionString="";
-        var scriptsPath="";
+        var connectionString = "";
+        var scriptsPath = "";
 
         if (args.Length == 2)
         {
-             connectionString = args[0];
-             scriptsPath = args[1];
+            connectionString = args[0];
+            scriptsPath = args[1];
         }
         else
         {
-             connectionString = "Data Source=MARKOPC\\MSSQLSERVER2;Initial Catalog=VC;Integrated Security=True;Encrypt=False";
-             scriptsPath = "C:\\Users\\38975\\Desktop\\PAIN\\Script\\";
+            connectionString = "Data Source=MARKOPC\\MSSQLSERVER2;Initial Catalog=VC;Integrated Security=True;Encrypt=False";
+            scriptsPath = "C:\\Users\\38975\\Desktop\\PAIN\\Script\\";
         }
         Console.WriteLine("Start executing predeployment scripts...");
         string preDeploymentScriptsPath = Path.Combine(scriptsPath, "PreDeployment");
@@ -186,27 +187,26 @@ internal class Program
 
         ShowSuccess();
 
-        List<string> MigrationList = SortedDateModifiedScripts(Path.Combine(scriptsPath, "Migrations"));
-        foreach (string script in MigrationList)
-        {
-            Console.WriteLine(script);
-
-            Console.WriteLine("Start executing migration scripts...");
-            var upgrader =
+        Console.WriteLine("Start executing migration scripts...");
+        // Create the DbUp upgrader
+        //var scriptOptions = SqlScript.FromFile(script);
+        List<SqlScript> MigrationList = SortedDateModifiedScripts(Path.Combine(scriptsPath, "Migrations")); 
+     
+        var upgrader =
                 DeployChanges.To
                     .SqlDatabase(connectionString)
-                    .WithScriptsFromFileSystem(script)
+                    .WithScripts(MigrationList)
                     .LogToConsole()
                     .JournalToSqlTable("dbo", "MigrationsJournal")
                     .Build();
 
-            var result = upgrader.PerformUpgrade();
+        var result = upgrader.PerformUpgrade();
 
-            if (!result.Successful)
-            {
-                return ReturnError(result.Error.ToString());
-            }
+        if (!result.Successful)
+        {
+            return ReturnError(result.Error.ToString());
         }
+  
 
         ShowSuccess();
 
