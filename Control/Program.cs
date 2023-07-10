@@ -1,13 +1,14 @@
 ﻿// DbUp Migrator console application
-using DbUp.Helpers;
-using DbUp.ScriptProviders;
 using DbUp;
 using DbUp.Engine;
-using System.Data;
-using System.Data.SqlClient;
+using DbUp.Helpers;
+using DbUp.ScriptProviders;
 using Microsoft.Data.SqlClient;
-using System.IO;
-using System;
+using System.Data;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Xml;
+using System.Xml.Linq;
 
 class HistoricalTrackingJournal : IJournal
 {
@@ -136,8 +137,23 @@ class HistoricalTrackingJournal : IJournal
 
 internal class Program
 {
+    //Path to XML file
+    static string GetConnectionString(string docPath)
+    {
+        string ret = ""; // The return string
+        XElement file = XElement.Load(docPath); // Load document as an XML Element
+        XElement connection = file.Elements().FirstOrDefault(); // Get the course elements into an enumerator
+
+        // Write out each course details to the console
+        ret += "Data Source="+connection.Attribute("Data_Source").Value + ";";
+        ret += "Initial Catalog="+connection.Attribute("Initial_Catalog").Value + ";";
+        ret += "Integrated Security="+connection.Attribute("Integrated_Security").Value + ";";
+        ret += "Encrypt="+connection.Attribute("Encrypt").Value + ";";
+
+        return ret;
+    }
     //Path should be a directory
-    static List<SqlScript> SortedDateModifiedScripts (string scriptsPath)
+    static List<SqlScript> SortedDateModifiedScripts(string scriptsPath)
     {
         List<SqlScript> sorted = new List<SqlScript>();
         DirectoryInfo directory = new DirectoryInfo(scriptsPath);
@@ -148,23 +164,38 @@ internal class Program
         {
             sorted.Add(SqlScript.FromFile(file.FullName));
         }
+        Console.WriteLine(sorted);
         return sorted;
     }
     static int Main(string[] args)
     {
+        var XMLPath = "C:\\Users\\38975\\Desktop\\Control\\Control\\TestConfig.xml";
+
         var connectionString = "";
         var scriptsPath = "";
+
+        if (XMLPath != "")
+        {
+            connectionString = GetConnectionString(XMLPath);
+            scriptsPath = "C:\\Users\\38975\\Desktop\\SqlScriptTest";
+        }
+        else
+        {
+            connectionString = "Data Source=MARKOPC\\MSSQLSERVER2;Initial Catalog=VC;Integrated Security=True;Encrypt=False;";
+            scriptsPath = "C:\\Users\\38975\\Desktop\\SqlScriptTest";
+        }
 
         if (args.Length == 2)
         {
             connectionString = args[0];
             scriptsPath = args[1];
         }
-        else
+
+        if(connectionString == "Data Source=MARKOPC\\MSSQLSERVER2;Initial Catalog=VC;Integrated Security=True;Encrypt=False;")
         {
-            connectionString = "Data Source=MARKOPC\\MSSQLSERVER2;Initial Catalog=VC;Integrated Security=True;Encrypt=False";
-            scriptsPath = "C:\\Users\\38975\\Desktop\\PAIN\\Script\\";
+            Console.WriteLine("YESSS");
         }
+
         Console.WriteLine("Start executing predeployment scripts...");
         string preDeploymentScriptsPath = Path.Combine(scriptsPath, "PreDeployment");
         var preDeploymentScriptsExecutor =
@@ -190,28 +221,32 @@ internal class Program
         Console.WriteLine("Start executing migration scripts...");
         // Create the DbUp upgrader
         //var scriptOptions = SqlScript.FromFile(script);
-        List<SqlScript> MigrationList = SortedDateModifiedScripts(Path.Combine(scriptsPath, "Migrations")); 
-     
-        var upgrader =
-                DeployChanges.To
-                    .SqlDatabase(connectionString)
-                    .WithScripts(MigrationList)
-                    .LogToConsole()
-                    .JournalToSqlTable("dbo", "MigrationsJournal")
-                    .Build();
+        List<SqlScript> MigrationList = SortedDateModifiedScripts(Path.Combine(scriptsPath, "Migrations"));
 
-        var result = upgrader.PerformUpgrade();
-
-        if (!result.Successful)
+        foreach (SqlScript script in MigrationList)
         {
-            return ReturnError(result.Error.ToString());
+            var upgrader =
+                    DeployChanges.To
+                        .SqlDatabase(connectionString)
+                        .WithScripts(script)
+                        .LogToConsole()
+                        .JournalToSqlTable("dbo", "MigrationsJournal")
+                        .Build();
+
+            var result = upgrader.PerformUpgrade();
+
+            if (!result.Successful)
+            {
+                return ReturnError(result.Error.ToString());
+            }
         }
-  
 
         ShowSuccess();
 
         Console.WriteLine("Start executing postdeployment scripts...");
         string postdeploymentScriptsPath = Path.Combine(scriptsPath, "PostDeployment");
+
+
         var postDeploymentScriptsExecutor =
             DeployChanges.To
                 .SqlDatabase(connectionString)
@@ -232,7 +267,7 @@ internal class Program
 
         ShowSuccess();
 
-        
+
         return 0;
     }
 

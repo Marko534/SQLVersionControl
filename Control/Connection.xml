@@ -2,5 +2,3 @@
 <XMLSchemaConnection xmlns="http://tempuri.org/XMLSchemaConnection.xsd">
   <connection dbtype="Sql Server" type="OLEDB" sql_server="" sql_db="" sql_username="" sql_password="" odbc_dsn="" odbc_username="" odbc_password="" oledb_connection="Provider=SQLOLEDB;Persist Security Info=False;User ID=aspdev;Password=aspekt;Data Source=192.168.1.67\SQL2016;Initial Catalog=LTAS;Use Procedure for Prepare=1;Auto Translate=True;Packet Size=4096;Workstation ID=SLAKEHP;Use Encryption for Data=False;Tag with column collation when possible=False" />
 </XMLSchemaConnection>
-
-

@@ -1,0 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<XMLSchemaConnection xmlns="http://tempuri.org/XMLSchemaConnection.xsd">
+	<connection Data_Source="MARKOPC\MSSQLSERVER2" Initial_Catalog="VC" Integrated_Security="True" Encrypt="False">Test1</connection>
+</XMLSchemaConnection>
